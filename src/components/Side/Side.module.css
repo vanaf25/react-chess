@@ -2,3 +2,25 @@
     font-weight: normal;
     text-align: center;
 }
+.clear{
+    background-color: #17baef;
+    color: #fff;
+    padding: 10px 30px;
+    transition: all .5s;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.clear:hover{
+    filter:brightness(80%);
+}
+.clear:active{
+    transform: translateY(-10px);
+}
+.container{
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

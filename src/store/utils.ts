@@ -57,8 +57,8 @@ switch (figure.name) {
     }
 }
 }
-
-const checkCellsForFigure=(startCell:Cell,endCell:Cell,board:Board)=>{
+const getCellByCoords=(board:Board,x:number,y:number)=>board.filter(cell=>cell.cord.x===x && cell.cord.y===y)[0]
+const checkCellsForFigure=(startCell:Cell,endCell:Cell,board:Board,permission?:boolean)=>{
  const getCellByCoords=(x:number,y:number)=>board.filter(cell=>cell.cord.x===x && cell.cord.y===y)[0]
     const movingFigure=startCell?.figure
     let startX=startCell.cord.x
@@ -105,8 +105,6 @@ const checkCellsForFigure=(startCell:Cell,endCell:Cell,board:Board)=>{
                 if (checkCordIsEqual(currentCell.cord,endCell.cord)) return true
             }
         }
-
-
     }
     if (startX<endX && startY<endY){
         return checkForFigures(1)
@@ -151,7 +149,9 @@ const checkMoveForKing=(startCell:Cell,endCell:Cell,board:Board)=>{
         return checkCellsForFigure(startCell,endCell,board)
     }
     else if (startCell.figure?.isFigureHasMoved===false){
-
+        if (endCell.cord.x===6 && endCell.cord.y===0){
+            return checkCellsForFigure(startCell,endCell,board)
+        }
     }
 }
 

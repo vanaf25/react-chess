@@ -49,6 +49,8 @@ function returnNameOfFigure(y:number,x:number) {
 let x=0
 let y=7
 function createBoard() {
+    x=0
+    y=7
     const board=[] as Board
     for (let i=0;i<64;i++){
         board.push(new Cell({x,y},returnNameOfFigure(y,x)));
