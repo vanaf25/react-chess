@@ -1,19 +1,17 @@
-import {
-    faChessBishop,
-    faChessKing,
-    faChessKnight,
-    faChessPawn,
-    faChessQueen,
-    faChessRook
-} from "@fortawesome/free-solid-svg-icons";
-import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 import {FiguresNameType, FigureType} from "./Board/Board";
-import {FigureColorType} from "../types/types";
+import {FigureColorType, IconType} from "../types/types";
+const importAll = (require:any) =>
+    require.keys().reduce((acc:any, next:any) => {
+        acc[next.replace("./", "")] = require(next);
+        return acc;
+    }, {});
+//@ts-ignore
+const images:any = importAll(require.context("./../assets", false, /\.(png|jpe?g|svg)$/));
 export class CreateFigure implements FigureType{
     id:number
     name:FiguresNameType
     color:FigureColorType
-    icon:IconDefinition | undefined | null
+    icon:IconType
     isFigureHasMoved?:boolean
     constructor(name:FiguresNameType,color:FigureColorType) {
         this.id=Math.random()+Math.random()
@@ -22,22 +20,6 @@ export class CreateFigure implements FigureType{
         if (name==="pawn" || name==="rook" || name==="king"){
             this.isFigureHasMoved=false
         }
-        this.icon= name ? switchIcon(name):null
-    }
-}
-export const switchIcon=(name:string)=>{
-    switch (name) {
-        case "pawn":
-            return  faChessPawn;
-        case "bishop":
-            return  faChessBishop;
-        case "rook":
-           return  faChessRook;
-        case "queen":
-            return  faChessQueen;
-        case "king":
-            return  faChessKing;
-        case "knight":
-           return  faChessKnight;
+        this.icon= images[`${color}_${name}.png`]
     }
 }

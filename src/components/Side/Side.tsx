@@ -11,10 +11,18 @@ const Side = () => {
         dispatch(setBoard(createBoard()));
         dispatch(setCurrentMoving("white"))
     }
+    const prevHandler=()=>{
+
+    }
     return (
         <div className={styles.container}>
             <h2 className={styles.title}>Current Move: {currentMove}</h2>
-            <button className={styles.clear} onClick={clearTheBoard}>Clear</button>
+            <div className={styles.buttons}>
+                <button className={styles.clear} onClick={prevHandler}>Prev</button>
+                <button className={styles.clear} onClick={clearTheBoard}>Clear</button>
+                <button className={styles.clear} onClick={clearTheBoard}>Next</button>
+            </div>
+
         </div>
     );
 };

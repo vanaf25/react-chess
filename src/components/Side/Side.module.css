@@ -10,12 +10,20 @@
     border: none;
     outline: none;
     cursor: pointer;
+    margin-right: 10px;
+}
+.clear:last-child{
+    margin-right: 0;
 }
 .clear:hover{
     filter:brightness(80%);
 }
 .clear:active{
     transform: translateY(-10px);
+}
+.buttons{
+    display: flex;
+    justify-content: center;
 }
 .container{
     max-width: 500px;

@@ -10,5 +10,7 @@ export type Board=Array<Cell>
 export type Cell={
     cord:posFigureType,
     figure:FigureType | null
-    available:boolean
+}
+export interface IconType{
+    default:string
 }

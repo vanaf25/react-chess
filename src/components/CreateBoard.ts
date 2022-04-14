@@ -65,11 +65,9 @@ function createBoard() {
 class Cell implements CellType{
     readonly cord:posFigureType
     figure:CreateFigure | null
-    available:boolean
     constructor(cord:posFigureType,figure:CreateFigure | null) {
         this.cord=cord
         this.figure=figure
-        this.available=false
     }
 }
 export default createBoard

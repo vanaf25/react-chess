@@ -10,17 +10,27 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 3;
     font-size: 30px;
     cursor: pointer;
-    background: #b58863;
+    background: #F0D9B5
 }
 ._black{
-    background: #474646;
+    background: #B59963
 }
 .available{
     width: 16px;
     height: 16px;
     background-color: #50db50;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 2;
+}
+.castling{
+    width: 16px;
+    height: 16px;
+    background-color: #17baef;
     border-radius: 50%;
     position: absolute;
     z-index: 2;
@@ -31,7 +41,10 @@ border: 1px solid red;
     height: 48px;
 }
 .isCanBeDeleted{
-    border: 1px solid darkgoldenrod;
-    width: 48px;
-    height: 48px;
+    border: 2px solid gold;
+    width: 46px;
+    height: 46px;
+}
+.cell__icon{
+    height: 30px;
 }

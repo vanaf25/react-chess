@@ -1,16 +1,16 @@
 import React, {useEffect} from 'react'
 import styles from './Board.module.css'
 import {Cell} from "./Cell/Cell";
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {useAppDispatch, useAppSelector} from "../../store/store";
 import { setBoard, setCurrentMoving } from '../../store/reducers/boardReducer';
 import createBoard from "../CreateBoard";
+import {useSelector} from "react-redux";
 export type FigureType={
     id:number,
     name:string,
     color:string,
     isFigureHasMoved?:boolean
-    icon:IconDefinition | undefined | null,
+    icon:any,
 }
 export  type FiguresNameType="pawn" | "rook" | "knight" | "bishop" | "queen" | "king"
 export const Board:React.FC=()=>{
@@ -35,7 +35,7 @@ export const Board:React.FC=()=>{
                 board.map((cell)=>{
                     index++
                     if (index%9===0) index++
-                   return  <Cell available={cell.available} figure={cell.figure} key={Math.random()+Math.random()} isBlack={index%2===0}  cord={cell.cord}/>
+                   return  <Cell figure={cell.figure} key={Math.random()+Math.random()} isBlack={index%2===0}  cord={cell.cord}/>
                 })
             }
         </div>
