@@ -3,6 +3,7 @@
     margin: 10px auto;
     display: grid;
     grid-template-columns: repeat(8,1fr);
+    position: relative;
 }
 .board__cell{
     width: 50px;

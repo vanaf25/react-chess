@@ -1,7 +1,6 @@
-import React, {useCallback} from 'react'
+import React from 'react'
 import styles from "../Board.module.css";
-import {FigureType} from "../Board";
-import {posFigureType} from "../../../types/types";
+import {FigureType, posFigureType} from "../../../types/types";
 import {useAppDispatch, useAppSelector} from "../../../store/store";
 import {dropFigure, setMovingCell } from '../../../store/reducers/boardReducer';
 import {checkCordIsEqual} from "../../../store/utils";
@@ -12,8 +11,8 @@ export const Cell:React.FC<{cord:posFigureType,
     const currentCheck=useAppSelector(state => state.board.currentCheck)
     const isCellAvailable=useAppSelector(state => state.board.availableCells)
         .find(cell=>checkCordIsEqual(cell,cord))
-    console.log("isCellAvaible:",isCellAvailable)
     const ondragFigure=()=>{
+        if (isCellAvailable) dispatch(dropFigure({cord:cord,figure:figure}))
         if (figure?.color===currentMoving){
             dispatch(setMovingCell({cord:cord,figure:figure}));
         }
@@ -22,13 +21,14 @@ export const Cell:React.FC<{cord:posFigureType,
             dispatch(dropFigure({cord:cord,figure:figure}))
     }
     return (
-        <div  data-x={cord.x} data-y={cord.y}
+        <div onClick={ondragFigure}  data-x={cord.x} data-y={cord.y}
               onDrop={onDrop}
               onDragOver={(e)=>e.preventDefault()}
               className={`${isCellAvailable?.type==="capture" ? styles.isCanBeDeleted:""} ${styles.board__cell} ${ isBlack ? styles._black:""}
                ${currentCheck.x===cord.x && currentCheck.y===cord.y ? styles.check:"" }`}>
             {isCellAvailable && !isCellAvailable.type && <div className={styles.available}/>}
-            { figure?.icon  && <img src={figure.icon.default} onDragStart={ondragFigure} draggable={currentMoving===figure?.color}
+            {isCellAvailable?.type==="castling" && <div className={styles.castling}/>}
+            { figure?.icon  && <img src={figure.icon} onDragStart={ondragFigure} draggable={currentMoving===figure?.color}
                      className={styles.cell__icon} alt={`${figure.color}_${figure.name}`}/>
             }
         </div>

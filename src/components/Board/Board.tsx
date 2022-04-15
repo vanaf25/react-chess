@@ -4,33 +4,24 @@ import {Cell} from "./Cell/Cell";
 import {useAppDispatch, useAppSelector} from "../../store/store";
 import { setBoard, setCurrentMoving } from '../../store/reducers/boardReducer';
 import createBoard from "../CreateBoard";
-import {useSelector} from "react-redux";
-export type FigureType={
-    id:number,
-    name:string,
-    color:string,
-    isFigureHasMoved?:boolean
-    icon:any,
-}
-export  type FiguresNameType="pawn" | "rook" | "knight" | "bishop" | "queen" | "king"
+import Popover from "../Popover/Popover";
 export const Board:React.FC=()=>{
     const board=useAppSelector(state =>state.board.board)
     const dispatch=useAppDispatch();
     useEffect(()=>{
         if (localStorage.getItem('board')!==null){
             const board=JSON.parse(localStorage.getItem('board') as string);
-            console.log(board);
             dispatch(setBoard(board.board))
             dispatch(setCurrentMoving(board.currentMove))
         }
         else {
             dispatch(setBoard(createBoard()))
         }
-
     },[]);
     let index=0
     return (
         <div className={styles.board}>
+            <Popover/>
             {
                 board.map((cell)=>{
                     index++
