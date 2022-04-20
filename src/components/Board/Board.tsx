@@ -2,7 +2,7 @@ import React, {useEffect} from 'react'
 import styles from './Board.module.css'
 import {Cell} from "./Cell/Cell";
 import {useAppDispatch, useAppSelector} from "../../store/store";
-import { setBoard, setCurrentMoving } from '../../store/reducers/boardReducer';
+import { setBoard, setChecks, setCurrentMoving } from '../../store/reducers/boardReducer';
 import createBoard from "../CreateBoard";
 import Popover from "../Popover/Popover";
 export const Board:React.FC=()=>{
@@ -13,6 +13,7 @@ export const Board:React.FC=()=>{
             const board=JSON.parse(localStorage.getItem('board') as string);
             dispatch(setBoard(board.board))
             dispatch(setCurrentMoving(board.currentMove))
+            dispatch(setChecks(board.checks))
         }
         else {
             dispatch(setBoard(createBoard()))

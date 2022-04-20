@@ -6,6 +6,7 @@ import createBoard from "../CreateBoard";
 import {FigureColorType} from "../../types/types";
 const Side = () => {
     const currentMove=useAppSelector(state => state.board.currentMove);
+    const mate=useAppSelector(state => state.board.mate)
     const dispatch=useAppDispatch();
     const clearTheBoard=()=>{
         localStorage.removeItem('board');
@@ -14,7 +15,8 @@ const Side = () => {
     }
     return (
         <div className={styles.container}>
-            <h2 className={styles.title}>Current Move: {currentMove}</h2>
+            {!mate &&  <h2 className={styles.title}>Current Move: {currentMove}</h2>}
+            {mate && <h1 className={styles.title}> {mate==="stalemate" ? "Stalemate":`Mate for ${mate}!!!` }</h1>}
             <div className={styles.buttons}>
                 <button className={styles.clear} onClick={clearTheBoard}>Clear</button>
             </div>

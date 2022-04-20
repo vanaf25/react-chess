@@ -28,7 +28,6 @@ export const checkMoveForPawn=(startCell:Cell,endCell:Cell,board:Board)=>{
                  }
              }
              else if (startCord.x-endCord.x===0 &&  checkCellsForFigure(startCell,endCell,board)){
-                 if (row===1*pawnDirection) return true
                  if (row===2*pawnDirection)return {action: "setEnPassant",cords:startCord }
                  if (endCord.y===(pawnDirection===1 ? 0:7)) return {action:"transformation"}
                  return true

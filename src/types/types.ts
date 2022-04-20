@@ -30,3 +30,7 @@ export type Cell={
 export interface IconType{
     default:string
 }
+ export interface Checks {
+    "white":boolean,
+    "black":boolean
+}

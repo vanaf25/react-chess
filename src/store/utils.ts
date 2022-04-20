@@ -1,4 +1,4 @@
-import {Board, FigureColorType, posFigureType} from "../types/types";
+import {Board, Cell, FigureColorType, FigureType, posFigureType} from "../types/types";
 export const getCellByCoords=(board:Board,x:number,y:number)=>board.filter(cell=>cell.cord.x===x && cell.cord.y===y)[0]
 export const checkCordIsEqual=(firstCord:posFigureType,secondCord:posFigureType)=>firstCord?.y===secondCord?.y
     && firstCord?.x===secondCord?.x
@@ -15,3 +15,4 @@ export const isEnPassantMove=(board:Board,cord:posFigureType,color:FigureColorTy
             cell.figure.color!==color && cell.figure.enPassant
     }
 )
+export const checkFiguresForColor=(firstFigure:FigureType | null,secondFigure:FigureType | null)=>firstFigure?.color!==secondFigure?.color

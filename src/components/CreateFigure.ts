@@ -7,7 +7,6 @@ const importAll = (require:any) =>
     }, {});
 //@ts-ignore
 export const images=Object.fromEntries(Object.entries(importAll(require.context("./../assets", false, /\.(png|jpe?g|svg)$/))).map((el:any)=>[el[0],el[1].default]))
-console.log(images)
 export class CreateFigure implements FigureType{
     id:number
     name:FiguresNameType

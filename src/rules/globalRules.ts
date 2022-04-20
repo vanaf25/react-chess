@@ -1,10 +1,11 @@
-import {Board, Cell, FiguresNameType} from "../types/types";
+import {Board, Cell, Checks, FiguresNameType} from "../types/types";
 import {checkCordIsEqual} from "../store/utils";
 import {checkMoveForPawn} from "./pawnRules";
 import {knightRules} from "./knightRules";
 import {checkMoveForKing} from "./kingRules";
-export const checkIsMoveCorrect=(startCell:Cell,endCell:Cell,board:Board)=>{
+export const checkIsMoveCorrect=(startCell:Cell,endCell:Cell,board:Board,checks?:Checks)=>{
     const figure=startCell?.figure
+
     if (figure?.color!==endCell.figure?.color){
         switch (figure?.name) {
             case FiguresNameType.PAWN:
@@ -21,7 +22,7 @@ export const checkIsMoveCorrect=(startCell:Cell,endCell:Cell,board:Board)=>{
                 return checkCellsForFigure(startCell,endCell,board);
             }
             case FiguresNameType.KING:{
-                return checkMoveForKing(startCell,endCell,board);
+                return checkMoveForKing(startCell,endCell,board,checks);
             }
         }
     }

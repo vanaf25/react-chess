@@ -3,13 +3,15 @@ import {Board, Cell as CellType, FigureColorType, FiguresNameType, posFigureType
 
 function returnNameOfFigure(y:number,x:number) {
     if (y===6){
-        return new CreateFigure(FiguresNameType.PAWN, FigureColorType.BLACK)
+    /*    return new CreateFigure(FiguresNameType.PAWN, FigureColorType.BLACK)*/
+        return null
     }
     else if (y===1){
         return new CreateFigure(FiguresNameType.PAWN, FigureColorType.WHITE)
     }
     else if ((y===7 && x===0) || (y===7 && x===7) ){
-        return new CreateFigure(FiguresNameType.ROOK, FigureColorType.BLACK)
+       /* return new CreateFigure(FiguresNameType.ROOK, FigureColorType.BLACK)*/
+        return null
     }
     else if ((x===0 && y===0) || (x===7 && y===0) ){
         return new CreateFigure(FiguresNameType.ROOK, FigureColorType.WHITE)
@@ -18,19 +20,22 @@ function returnNameOfFigure(y:number,x:number) {
         return  new CreateFigure(FiguresNameType.KNIGHT, FigureColorType.WHITE)
     }
     else if ((x===1 && y===7) || (x===6 && y===7)){
-        return new CreateFigure(FiguresNameType.KNIGHT, FigureColorType.BLACK)
+    /*    return new CreateFigure(FiguresNameType.KNIGHT, FigureColorType.BLACK)*/
+        return null
     }
     else if ((x===2 && y===0) || (x===5 && y===0) ){
         return  new CreateFigure(FiguresNameType.BISHOP, FigureColorType.WHITE)
     }
     else if ((x===2 && y===7) || (x===5 && y===7)){
-        return new CreateFigure(FiguresNameType.BISHOP, FigureColorType.BLACK)
+       /* return new CreateFigure(FiguresNameType.BISHOP, FigureColorType.BLACK)*/
+        return null
     }
     else if ((x===3 && y===0)){
         return  new CreateFigure(FiguresNameType.QUEEN, FigureColorType.WHITE)
     }
     else if ((x===3 && y===7)){
-        return new CreateFigure(FiguresNameType.QUEEN, FigureColorType.BLACK)
+    /*    return new CreateFigure(FiguresNameType.QUEEN, FigureColorType.BLACK)*/
+        return null
     }
     else if ((x===4 && y===0)){
         return new CreateFigure(FiguresNameType.KING, FigureColorType.WHITE)
