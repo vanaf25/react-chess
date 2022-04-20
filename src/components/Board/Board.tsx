@@ -13,7 +13,7 @@ export const Board:React.FC=()=>{
             const board=JSON.parse(localStorage.getItem('board') as string);
             dispatch(setBoard(board.board))
             dispatch(setCurrentMoving(board.currentMove))
-            dispatch(setChecks(board.checks))
+            dispatch(setChecks({checks:board.checks,mate:board.mate}))
         }
         else {
             dispatch(setBoard(createBoard()))

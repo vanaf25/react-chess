@@ -53,6 +53,7 @@ border: 2px solid red;
 }
 .cell__icon{
     height: calc(var(--coefficient) / 1.5);
+    user-select: none;
 }
 ._active{
     background-color: #8fc647;

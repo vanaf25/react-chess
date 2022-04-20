@@ -30,7 +30,8 @@ const initialState={
 },
     mate:'' as FigureColorType | "stalemate"
 }
-const setToLocalStorage=(board:Board,currentMove:FigureColorType,checks:Checks)=>localStorage.setItem('board',JSON.stringify({board,currentMove,checks}));
+const setToLocalStorage=(board:Board,currentMove:FigureColorType,checks:Checks,mate:FigureColorType | "stalemate")=>localStorage.setItem('board',
+    JSON.stringify({board,currentMove,checks,mate}));
  const boardSlice=createSlice({
     name:"board",
     initialState,
@@ -113,7 +114,7 @@ const setToLocalStorage=(board:Board,currentMove:FigureColorType,checks:Checks)=
                 }
             }
             state.availableCells=[]
-            setToLocalStorage(state.board,state.currentMove,state.checks);
+            setToLocalStorage(state.board,state.currentMove,state.checks,state.mate);
            state.movingCell={} as Cell
         },
         setBoard:(state,action:PayloadAction<Board>)=>{
@@ -209,8 +210,9 @@ const setToLocalStorage=(board:Board,currentMove:FigureColorType,checks:Checks)=
             })
             state.checks=isCheck(state.board,state.checks)
         },
-        setChecks:(state,action:PayloadAction<Checks>)=>{
-            state.checks=action.payload
+        setChecks:(state,action:PayloadAction<{checks:Checks,mate:FigureColorType | "stalemate"}>)=>{
+            state.checks=action.payload.checks
+            state.mate=action.payload.mate
         }
     }
 });
