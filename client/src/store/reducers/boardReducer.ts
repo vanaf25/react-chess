@@ -1,11 +1,13 @@
 import {
     Board,
     Cell,
+    Changes,
     Checks,
     FigureColorType,
     FiguresNameType,
     FigureType,
     Mate,
+    StartGameType,
     posFigureType
 } from "../../types/types";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
@@ -13,7 +15,7 @@ import {checkCordIsEqual} from "../utils";
 import {checkIsMoveCorrect} from "../../rules/globalRules";
 import isCheck, {isMate} from "../../rules/checkForCheck";
 import {checkForDraw} from "../../rules/checkForDraw";
-
+import {ACTIONS, socket} from "../../components/Main/Main";
 type Type={
     type?:string,
     action?:string,
@@ -22,7 +24,7 @@ type Type={
     cords?:posFigureType,
 }
 const initialState={
-    board:[] as Array<Board>,
+    board:[] as Board,
     movingCell:{
 
     } as Cell,
@@ -35,33 +37,34 @@ const initialState={
         cords:{} as posFigureType,
         color:FigureColorType.WHITE as  FigureColorType
     },
+    changes:[] as Changes,
     checks:{
         "white":false,
         "black":false
 },
     mate:'' as Mate,
-    initialTime:60000,
+    initialTime:0,
+    extraTime:0,
+    isGameStarted:false,
     currentVersionOfBoard:0,
+    availableColor:"",
+    opponentSocketId:""
 }
-const getLastVersionOfBoard=(state:any):Board=>state.board[state.board.length ? state.board.length-1:0]
-const setToLocalStorage=(board:Array<Board>,
+const setToLocalStorage=(board:Array<Cell>,
                          currentMove:FigureColorType,
                          checks:Checks,mate:Mate,
-                         currentVersionOfBoard:number)=>
+                         currentVersionOfBoard:number,changes:Changes,)=>
     localStorage.setItem('board',
-    JSON.stringify({board,currentMove,checks,mate,currentVersionOfBoard}));
+    JSON.stringify({board,currentMove,checks,mate,currentVersionOfBoard,changes}));
  const boardSlice=createSlice({
     name:"board",
     initialState,
     reducers:{
         dropFigure:(state,action:PayloadAction<Cell>)=>{
-            let board:Board=JSON.parse(JSON.stringify(getLastVersionOfBoard(state)))
             let isMoveCorrect;
+            const changes=[] as Array<Cell>
         //@ts-ignore
-           state.board=state.board.map((currentBoard,index)=>{
-               if (index===state.board.length-1){
-                   // @ts-ignore
-                   board=board.map(cell=>{
+           state.board=state.board.map((cell)=>{
                        if (checkCordIsEqual(cell.cord,action.payload.cord)){
                            if (cell.figure){
                                if (state.checks[cell.figure.color] && cell.figure.name!==FiguresNameType.KING){
@@ -71,6 +74,7 @@ const setToLocalStorage=(board:Array<Board>,
                            const type=state.availableCells.find(availableCell=>checkCordIsEqual(
                                cell.cord,{x:availableCell.x,y:availableCell.y}))
                            if (type){
+                               changes.push({...cell,figure:{...state.movingCell.figure,isFigureHasMoved:true} as FigureType})
                                isMoveCorrect=true
                                state.currentVersionOfBoard+=1
                                state.currentMove=state.currentMove===FigureColorType.WHITE ? FigureColorType.BLACK:FigureColorType.WHITE
@@ -78,12 +82,14 @@ const setToLocalStorage=(board:Array<Board>,
                                    state.currentTime===FigureColorType.BLACK ? FigureColorType.WHITE : FigureColorType.BLACK
                                if (type?.type==="castling"){
                                    const figure=type?.startCell?.figure
-                                   board.forEach(cell=>{
+                                   state.board.forEach(cell=>{
                                        if (checkCordIsEqual(cell.cord,type?.endCord as posFigureType )){
                                            cell.figure=figure as FigureType
+                                           changes.push(cell)
                                        }
                                        else if (checkCordIsEqual(cell.cord,type?.startCell?.cord as posFigureType)){
                                            cell.figure=null
+                                           changes.push(cell)
                                        }
                                    })
                                }
@@ -95,26 +101,29 @@ const setToLocalStorage=(board:Array<Board>,
                                    }
                                }
                                else if (type?.action==="passant"){
-                                   board.forEach(cell=>{
+                                   state.board.forEach(cell=>{
                                        if (checkCordIsEqual(cell.cord,type?.cords as posFigureType )){
                                            cell.figure=null
                                        }
                                    })
                                }
                                else if (type?.action==="setEnPassant"){
-                                   board.forEach(cell=>{
+                                   state.board.forEach(cell=>{
                                        if (checkCordIsEqual(cell.cord,type?.cords as posFigureType)){
-                                           //@ts-ignore
-                                           cell.figure.enPassant=true
+                                           if (cell.figure){
+                                               cell.figure.enPassant=true
+                                           }
                                        }
                                    })
                                }
                                //clear the moved cell
-                               board.forEach(cell=>{
+                               state.board.forEach(cell=>{
                                    if (checkCordIsEqual(cell.cord,state.movingCell.cord)){
                                        cell.figure=null
                                    }
-                                   if (cell.figure!==null && !checkCordIsEqual(cell.cord,type?.cords as posFigureType)){
+                                   if (cell.figure!==null  &&
+                                       cell.figure.name===FiguresNameType.PAWN &&
+                                       !checkCordIsEqual(cell.cord,type?.cords as posFigureType)){
                                        cell.figure.enPassant=false
                                    }
                                })
@@ -123,36 +132,39 @@ const setToLocalStorage=(board:Array<Board>,
                        }
                        return cell
                    })
-                   return currentBoard
-
-               }
-               return currentBoard
-
-            });
-           state.board.push(board)
             //проверка на шаx
            if (isMoveCorrect){
-             state.checks=isCheck(board,state.checks)
+             state.checks=isCheck(state.board,state.checks)
            }
            //проверка на мат
             if (state.checks[state.currentMove]){
-                if (isMate(board,state.currentMove,state.checks)){
+                if (isMate(state.board,state.currentMove,state.checks)){
                     state.mate=state.currentMove
                 }
             }
             //проверка на пат
             if (!state.checks[state.currentMove]){
-                if (isMate(board,state.currentMove,state.checks)){
+                if (isMate(state.board,state.currentMove,state.checks)){
                     state.mate="stalemate"
                 }
             }
             if (isMoveCorrect){
-                if (checkForDraw(board)){
+                if (checkForDraw(state.board)){
                     state.mate="draw"
                 }
             }
+            if (state.availableColor && isMoveCorrect && state.opponentSocketId){
+                socket.emit(ACTIONS.SET_MOVING,{
+                    to:state.opponentSocketId,
+                    board:state.board,
+                    checks:state.checks,
+                    mate:state.mate,
+                    currentMove:state.currentMove
+                })
+            }
             state.availableCells=[]
-            setToLocalStorage(state.board,state.currentMove,state.checks,state.mate,state.currentVersionOfBoard);
+            state.changes.push(changes)
+            setToLocalStorage(state.board,state.currentMove,state.checks,state.mate,state.currentVersionOfBoard,state.changes);
            state.movingCell={} as Cell
         },
         setBoard:(state,action:PayloadAction<Board | Array<Board>>)=>{
@@ -171,12 +183,11 @@ const setToLocalStorage=(board:Array<Board>,
         setMovingCell:(state,action:PayloadAction<Cell>)=>{
             state.movingCell=action.payload
             state.availableCells=[]
-            const lastBoard=getLastVersionOfBoard(state)
-            lastBoard.forEach(el=>{
-                const type:any=checkIsMoveCorrect(state.movingCell,el,lastBoard,state.checks)
+            state.board.forEach(el=>{
+                const type:any=checkIsMoveCorrect(state.movingCell,el,state.board,state.checks)
                 if (type){
                     let isMoveCorrect=false
-                    let imitationBoard:Board=JSON.parse(JSON.stringify(lastBoard))
+                    let imitationBoard:Board=JSON.parse(JSON.stringify(state.board))
                     //@ts-ignore
                      imitationBoard=imitationBoard.map((cell)=>{
                         if (checkCordIsEqual(cell.cord,el.cord)){
@@ -215,7 +226,11 @@ const setToLocalStorage=(board:Array<Board>,
                                     if (checkCordIsEqual(cell.cord,state.movingCell.cord)){
                                         cell.figure=null
                                     }
-                                    if (cell.figure!==null && !checkCordIsEqual(cell.cord,type?.cords as posFigureType)){
+                                    if (cell.figure!==null
+                                        && cell.figure.name===FiguresNameType.PAWN
+                                        && cell.figure.enPassant
+                                        && !checkCordIsEqual(cell.cord,type?.cords as posFigureType)){
+                                        debugger;
                                         cell.figure.enPassant=false
                                     }
                                 })
@@ -244,19 +259,15 @@ const setToLocalStorage=(board:Array<Board>,
         setFigureToCell:(state,action:PayloadAction<Cell>)=>{
             state.popup={...state.popup,opening:false}
             //@ts-ignore
-            state.board=state.board.map((currentBoard,index)=>{
-                if (index===state.board.length-1){
-                    return currentBoard.map(cell=>{
+            state.board=state.board.map(cell=>{
                         if (checkCordIsEqual(cell.cord,action.payload.cord)){
                             state.currentVersionOfBoard+=1
                             return {...cell,figure:action.payload.figure}
                         }
                         return cell
                     })
-                }
 
-            })
-            const currentBoard=getLastVersionOfBoard(state)
+            const currentBoard=state.board
             state.checks=isCheck(currentBoard,state.checks)
             if (state.checks[state.currentMove]){
                 if (isMate(currentBoard,state.currentMove,state.checks)){
@@ -285,21 +296,28 @@ const setToLocalStorage=(board:Array<Board>,
                 state.mate=`black lost by the time`
             }
         },
-        prevVersion:(state)=>{
-            if (state.currentVersionOfBoard>0){
-                state.currentVersionOfBoard-=1
-            }
-        },
-        nextVersion:(state)=>{
-            if (state.currentVersionOfBoard<state.board.length){
-                state.currentVersionOfBoard+=1
-            }
-        },
         setVersionOfBoard:(state,action:PayloadAction<number>)=>{
             state.currentVersionOfBoard=action.payload
+        },
+        startGame:(state,action:PayloadAction<StartGameType>)=>{
+            state.isGameStarted=true;
+            state.extraTime=action.payload.extraTime*1000
+            state.initialTime=action.payload.time*60*1000
+            if (action.payload.color){
+                state.availableColor=action.payload.color
+            }
+            if (action.payload.socketId){
+                state.opponentSocketId=action.payload.socketId
+            }
+        },
+        stopGame:(state)=>{
+            state.isGameStarted=false
+            state.extraTime=0;
+            state.initialTime=0;
+            state.availableColor=""
         }
     }
 });
 export const {setBoard,dropFigure,setMovingCell,setCurrentMoving,
-    setFigureToCell,setChecks,setMateByTime,prevVersion,nextVersion,setVersionOfBoard}=boardSlice.actions
+    setFigureToCell,setChecks,setMateByTime,setVersionOfBoard,startGame,stopGame}=boardSlice.actions
 export default boardSlice

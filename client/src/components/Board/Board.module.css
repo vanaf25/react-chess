@@ -39,9 +39,9 @@
     grid-template-columns: repeat(8,1fr);
     position: relative;
 }
-/*.board._blackMoving{
+.board._blackMoving{
     transform: rotate(180deg);
-}*/
+}
 .board__cell{
     width: var(--coefficient);
     height: var(--coefficient);
@@ -91,9 +91,9 @@ border: 2px solid red;
     height: calc(var(--coefficient)/1.5);
     user-select: none;
 }
-/*._blackMoving .cell__icon{
+._blackMoving .cell__icon{
     transform: rotate(180deg);
-}*/
+}
 ._active{
     background-color: #8fc647;
 }

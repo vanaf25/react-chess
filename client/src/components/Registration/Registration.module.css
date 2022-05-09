@@ -1,0 +1,12 @@
+.formBox{
+    max-width: 400px;
+    margin: 0 auto;
+}
+.form__title{
+    text-align: center;
+    font-size: 2.5rem;
+    color:#333;
+}
+.form__input{
+    border:1px solid  #fff !important;
+}

@@ -6,11 +6,18 @@ import {setBoard, setChecks, setCurrentMoving, setVersionOfBoard} from '../../st
 import createBoard from "../CreateBoard";
 import Popover from "../Popover/Popover";
 import {FigureColorType} from "../../types/types";
+import { useNavigate } from 'react-router-dom';
+import {io} from 'socket.io-client'
+import {ACTIONS, socket} from "../Main/Main";
 export const Board:React.FC=()=>{
+    const navigate=useNavigate();
+    const isAuth=useAppSelector(state => state.auth.isAuth)
+    if (!isAuth) navigate("/login");
+    const availableColor=useAppSelector(state => state.board.availableColor);
+    const user=useAppSelector(state => state.auth.user)
     const board=useAppSelector(state =>state.board.board)
-    const currentVersionOfBoard=useAppSelector(state => state.board.currentVersionOfBoard)
-    console.log(currentVersionOfBoard)
-    const currentMove=useAppSelector(state => state.board.currentMove)
+    const currentMove=useAppSelector(state => state.board.currentMove);
+    const isGameStarted=useAppSelector(state =>state.board.isGameStarted)
     const dispatch=useAppDispatch();
     useEffect(()=>{
         if (localStorage.getItem('board')!==null){
@@ -24,16 +31,30 @@ export const Board:React.FC=()=>{
             dispatch(setBoard(createBoard()))
         }
     },[]);
+    useEffect(()=>{
+        if (socket.connected){
+            socket.on(ACTIONS.CHANGE_BOARD,(data)=>{
+                console.log('change');
+                dispatch(setBoard(data.board))
+                dispatch(setCurrentMoving(data.currentMove))
+                dispatch(setChecks({checks:data.checks,mate:data.mate}))
+            })
+        }
+    },[]);
     return (
-        <div className={`${styles.board} ${currentMove===FigureColorType.BLACK ? styles._blackMoving:"" }`}>
-            <Popover/>
-            {
-                board[currentVersionOfBoard]?.map((cell)=>{
-                   return  <Cell color={cell.color}
-                                 figure={cell.figure}
-                                 key={Math.random()+Math.random()}   cord={cell.cord}/>
-                })
-            }
+        <div className={`${styles.board}  ${availableColor===FigureColorType.BLACK ? styles._blackMoving:"" }`}>
+            {isGameStarted && <>
+                <Popover/>
+                {
+                    board?.map((cell)=>{
+                        return  <Cell color={cell.color}
+                                      figure={cell.figure}
+                                      key={Math.random()+Math.random()}   cord={cell.cord}/>
+                    })
+                }
+            </>}
+
+
         </div>
     )
 }

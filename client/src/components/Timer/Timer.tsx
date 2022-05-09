@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import classes from "./Timer.module.css";
 import {useAppDispatch, useAppSelector} from "../../store/store";
-import {setMateByTime} from '../../store/reducers/boardReducer';
+import {setMateByTime, stopGame} from '../../store/reducers/boardReducer';
 import {FigureColorType} from "../../types/types";
 
 const Timer:React.FC<{type:FigureColorType}> = ({type}) => {
@@ -24,7 +24,7 @@ const Timer:React.FC<{type:FigureColorType}> = ({type}) => {
             JSON.parse(localStorage.getItem(type === FigureColorType.WHITE ? "whiteTimer" : "blackTimer") as string):null
 
 
-    const [currentTime,setCurrentTime]=useState(timeForLocalStorage ? timeForLocalStorage:initialTime);
+    const [currentTime,setCurrentTime]=useState(initialTime);
     window.addEventListener("storage",()=>{
         console.log('change');
         console.log(localStorage.getItem(type===FigureColorType.WHITE ? "whiteTimer":"blackTimer"))
@@ -36,6 +36,10 @@ const Timer:React.FC<{type:FigureColorType}> = ({type}) => {
         dispatch(setMateByTime(type))
     }
     const currentTimer=useAppSelector(state => state.board.currentTime)
+    const extraTime=useAppSelector(state => state.board.extraTime);
+    useEffect(()=>{
+        if (currentTimer!==type && currentTimer) setCurrentTime(prevState =>prevState+extraTime);
+    },[currentTimer]);
     const mate=useAppSelector(state => state.board.mate);
     const [timeInterval,setTimeInterval]=useState<any>(null);
     useEffect(()=>{
@@ -56,6 +60,12 @@ const Timer:React.FC<{type:FigureColorType}> = ({type}) => {
     useEffect(()=>{
         if (type!==currentTimer) clearInterval(timeInterval)
     },[currentTimer])
+    useEffect(()=>{
+        return ()=>{
+            setCurrentTime(0);
+            dispatch(stopGame())
+        }
+    },[])
     return (
         <div className={classes.timer}>
             <h1>{minutesToTime(currentTime)}</h1>

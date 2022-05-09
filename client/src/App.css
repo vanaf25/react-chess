@@ -1,7 +1,20 @@
 body{
-  background-color: #2e2e2e;
+  background-color: #f5f6f7;
 }
 h1,h2,h3,h4,h5,h6{
   font-weight: normal;
   margin-top: 0;
+}
+a{
+  text-decoration: none;
+  transition: opacity .3s;
+  color:currentColor;
+}
+a:hover{
+  opacity: .7;
+}
+.container{
+  max-width: 1170px;
+  margin: 0 auto;
+  padding: 0 10px;
 }

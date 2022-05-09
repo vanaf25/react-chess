@@ -19,7 +19,7 @@ export const Cell:React.FC<{
     const ondragFigure=()=>{
         if (!mate){
             if (isCellAvailable) dispatch(dropFigure({cord:cord,figure:figure,color:color}))
-            if (figure?.color===currentMoving){
+            if (figure?.color===currentMoving && availableColor===figure?.color){
                 dispatch(setMovingCell({cord:cord,figure:figure,color}));
             }
         }
@@ -27,7 +27,8 @@ export const Cell:React.FC<{
     const onDrop=()=>{
             dispatch(dropFigure({cord:cord,figure:figure,color}))
     }
-    const isCheck=figure && figure?.name===FiguresNameType.KING && checks[figure?.color]
+    const isCheck=figure && figure?.name===FiguresNameType.KING && checks[figure?.color];
+    const availableColor=useAppSelector(state => state.board.availableColor);
     return (
         <div data-color={color}  onClick={ondragFigure}  data-x={cord.x} data-y={cord.y}
               onDrop={onDrop}
@@ -42,7 +43,8 @@ export const Cell:React.FC<{
               })}>
             {isCellAvailable && !isCellAvailable.type && <div className={styles.available}/>}
             {isCellAvailable?.type==="castling" && <div className={styles.castling}/>}
-            { figure?.icon  && <img src={figure.icon} onDragStart={ondragFigure} draggable={mate ? false:currentMoving===figure?.color}
+            { figure?.icon  && <img src={figure.icon} onDragStart={ondragFigure}
+                                    draggable={mate ? false:availableColor===figure?.color && currentMoving===figure?.color}
                      className={styles.cell__icon} alt={`${figure.color}_${figure.name}`}/>
             }
         </div>
