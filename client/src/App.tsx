@@ -8,22 +8,26 @@ import VerifyAccount from './components/VerifyAccount/VerifyAccount';
 import { useIsAuthQuery } from './store/api/loginApi';
 import Game from "./Game/Game";
 import Main from "./components/Main/Main";
+import FullyPreloader from "./common/FullyPreloader/FullyPreloader";
 function App() {
     const {data,isLoading}=useIsAuthQuery(5,{
         skip:!localStorage.getItem("accessToken")
     })
-    if (!isLoading) console.log(data);
   return (
       <>
-          <Header/>
-          <Routes>
-              <Route path={"/"} element={<Main/>}/>
-            <Route path={"/game"} element={<Game/>}/>
-            <Route path={"/login"} element={<Login/>}/>
-            <Route path={"/registration"} element={<Registration/>}/>
-            <Route path={"/verifyAccount"} element={<VerifyAccount/>}/>
-          </Routes>
-
+          {
+              isLoading ? <FullyPreloader/>:
+                  <>
+                      <Header/>
+                      <Routes>
+                          <Route path={"/"} element={<Main/>}/>
+                          <Route path={"/game"} element={<Game/>}/>
+                          <Route path={"/login"} element={<Login/>}/>
+                          <Route path={"/registration"} element={<Registration/>}/>
+                          <Route path={"/verifyAccount"} element={<VerifyAccount/>}/>
+                      </Routes>
+                  </>
+          }
       </>
 
 

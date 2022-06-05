@@ -4,8 +4,8 @@ import {useAppDispatch, useAppSelector} from "../../store/store";
 import { startGame } from '../../store/reducers/boardReducer';
 import { useNavigate } from 'react-router-dom';
 import {io} from "socket.io-client";
-import {UserType} from "../../types/authTypes";
 import {FigureColorType} from "../../types/types";
+import {AVAILABLE_USER, GAME_IS_CREATE, GAME_OPTIONS, OPPONENT} from "../../types/socketTypes";
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
@@ -50,13 +50,18 @@ export const ACTIONS={
     GAME_IS_CREATE:"GAME_IS_CREATE",
     SET_MOVING:"SET_MOVING",
     CHANGE_BOARD:"CHANGE_BOARD",
-    STOP_SEARCHING:"STOP_SEARCHING"
-}
-interface availableUserType {
-    user:UserType,
-    time:number,
-    extraTime:number,
-    type:number
+    STOP_SEARCHING:"STOP_SEARCHING",
+    SET_OFFER_FOR_DRAW:"SET_OFFER_FOR_DRAW",
+    OFFER_FOR_DRAW:"OFFER_FOR_DRAW",
+    REJECT_OFFER_FOR_DRAW:"REJECT_OFFER_FOR_DRAW",
+    SET_REJECT_OFFER_FOR_DRAW:"SET_REJECT_OFFER_FOR_DRAW",
+    SET_ACCEPT_OFFER_FOR_DRAW:"SET_ACCEPT_OFFER_FOR_DRAW",
+    ACCEPT_OFFER_FOR_DRAW:"ACCEPT_OFFER_FOR_DRAW",
+    SET_GIVE_UP:"SET_GIVE_UP",
+    GIVE_UP:"GIVE_UP",
+    OPPONENT_DISCONNECT:"OPPONENT_DISCONNECT",
+    RECONNECT_FOR_GAME:"RECONNECT_FOR_GAME",
+    SEND_MESSAGE:"SEND_MESSAGE"
 }
 const Main = () => {
     const typeOfGames=[
@@ -85,49 +90,43 @@ const Main = () => {
             extraSeconds:2
         },
         {
-            id:4,
+            id:5,
             type:"Blitz",
             time:5,
             extraSeconds:0
         },
         {
-            id:4,
+            id:6,
             type:"Blitz",
             time:5,
             extraSeconds:3
         },
         {
-            id:4,
+            id:7,
             type:"Rapid",
             time:10,
             extraSeconds:0
         },
         {
-            id:4,
+            id:9,
             type:"Rapid",
             time:10,
             extraSeconds:5
         },
         {
-            id:4,
-            type:"Rapid",
-            time:10,
-            extraSeconds:5
-        },
-        {
-            id:4,
+            id:10,
             type:"Rapid",
             time:15,
             extraSeconds:10
         },
         {
-            id:4,
+            id:11,
             type:"Classical",
             time:30,
             extraSeconds:0
         },
         {
-            id:4,
+            id:12,
             type:"Classical",
             time:30,
             extraSeconds:20
@@ -138,11 +137,12 @@ const Main = () => {
     const isAuth=useAppSelector(state => state.auth.isAuth)
     if (!isAuth) navigator("/login");
     const user=useAppSelector(state => state.auth.user)
-    const [availableUsers,setAvailableUsers]=useState<Array<availableUserType>>([]);
+    const [availableUsers,setAvailableUsers]=useState<Array<AVAILABLE_USER>>([]);
     const [isSearchingForGame,setIsSearchingForGame]=useState<null | number>(null)
-    const setTypeOfGame=(time:number,extraTime:number,type:string,color?:FigureColorType,socketId?:string)=>{
-        dispatch(startGame({time,extraTime,type,color,socketId}))
-        navigator("/game");
+    const [isGameDuring,setIsGameDuring]=useState(false);
+    const setTypeOfGame=(data:GAME_IS_CREATE)=>{
+        dispatch(startGame(data))
+        navigator(`game`);
     }
     const [value, setValue] = React.useState(0);
     useEffect(()=>{
@@ -150,28 +150,53 @@ const Main = () => {
         socket.on(ACTIONS.GET_AVAILABLE_USERS,(data)=>{
             setAvailableUsers(data);
         });
-        socket.on(ACTIONS.GAME_IS_CREATE,(data)=>{
-            setTypeOfGame(data.user.time,data.user.extraTime,data.user.type,data.color,data.user.socketId)
+        socket.on(ACTIONS.GAME_IS_CREATE,(data:GAME_IS_CREATE)=>{
+            setTypeOfGame(data)
         })
         socket.on("disconnect",()=>{
             socket.emit(ACTIONS.STOP_SEARCHING,socket.id);
         })
+
     },[]);
+    useEffect(()=>{
+        if (isAuth && Object.keys(user).length && localStorage.getItem('gameId')!==null){
+                const gameId=localStorage.getItem('gameId')
+            console.log(gameId)
+                socket.emit(ACTIONS.RECONNECT_FOR_GAME,{
+                    gameId,
+                    userId:user.id
+                })
+        }
+
+    },[user])
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
     const addAvailableUser=(time:number,extraTime:number,type:string,index:number)=>{
         setIsSearchingForGame(prevState =>prevState!==index ? index:null)
-        socket.emit(ACTIONS.START_SEARCHING,{
-            socketId:socket.id,
-         time,
-         extraTime,
-         type,
-            user
-        })
+        if (index!==isSearchingForGame){
+            socket.emit(ACTIONS.START_SEARCHING,{
+                socketId:socket.id,
+                gameOptions:{
+                    time,
+                    extraTime,
+                    type
+                },
+                user
+            })
+        }
+        else {
+            socket.emit(ACTIONS.STOP_SEARCHING,socket.id);
+        }
+
     }
-    const createGameWithUser=(user:availableUserType)=>{
-        socket.emit(ACTIONS.CREATE_GAME_WITH_USER,{mySocketId:socket.id,user})
+    const createGameWithUser=(opponent:AVAILABLE_USER)=>{
+        socket.emit(ACTIONS.CREATE_GAME_WITH_USER,{
+            mySocketId:socket.id,
+            opponentSocketId:opponent.socketId,
+            user,
+            gameOptions:opponent.gameOptions,
+            opponent:opponent.user})
     }
     return (
         <div className={"container"}>
@@ -182,7 +207,7 @@ const Main = () => {
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-                <Box sx={{display:"flex",flexWrap:"wrap",width:610,margin:"0 auto",justifyContent:"center"}}>
+                <Box sx={{display:"flex",flexWrap:"wrap",maxWidth:610,margin:"0 auto",justifyContent:"center"}}>
                     {typeOfGames.map((typeOfGame,index)=><CardContent
                                                               onClick={()=>addAvailableUser(typeOfGame.time,typeOfGame.extraSeconds,typeOfGame.type,index)}
                                                               sx={{
@@ -215,10 +240,10 @@ const Main = () => {
                                 {user.user.name}
                             </Box>
                             <Box>
-                                {`${user.time}+${user.extraTime}`}
+                                {`${user.gameOptions.time}+${user.gameOptions.extraTime}`}
                             </Box>
                             <Box>
-                                {`${user.type}`}
+                                {`${user.gameOptions.type}`}
                             </Box>
                        </Box>
                     })

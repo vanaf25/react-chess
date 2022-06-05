@@ -1,5 +1,4 @@
-import {number, string} from "yup";
-
+import {UserType} from "./authTypes";
 export type posFigureType={
     x:number,
     y:number
@@ -24,6 +23,12 @@ export type FigureType={
     icon:any,
     enPassant?:boolean
 }
+export interface BoardData {
+    board:Board,
+    checks:Checks,
+    mate:Mate,
+    currentMove:FigureColorType
+}
 export type Board=Array<Cell>
 export type Changes=Array<Board>
 export type Cell={
@@ -39,10 +44,17 @@ export interface IconType{
     "black":boolean
 }
 export interface StartGameType{
+    id:string
     extraTime:number,
     time:number,
     type:string,
     color?:FigureColorType,
-    socketId?:string
+    socketId?:string,
+    opponent?:UserType & {socketId:string}
 }
 export type Mate=FigureColorType | "stalemate" | "draw" | `white lost by the time` | "black lost by the time"
+    | "white was give up" | "black was give up"
+export default interface Timer{
+    "white":number,
+    "black":number
+}

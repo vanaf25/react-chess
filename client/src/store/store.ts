@@ -7,7 +7,7 @@ export const store = configureStore({
     reducer: {
         board: boardSlice.reducer,
         [loginApi.reducerPath]:loginApi.reducer,
-        auth:authSlice.reducer
+        auth:authSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(loginApi.middleware)

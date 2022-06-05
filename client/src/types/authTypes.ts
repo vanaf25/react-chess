@@ -2,7 +2,8 @@ export type UserType={
     id:string,
     name:string,
     email:string,
-    isActivated:boolean
+    isActivated:boolean,
+    socketId?:string
 }
 export type UserTypeWithTokens={
     accessToken:string,

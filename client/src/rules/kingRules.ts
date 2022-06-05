@@ -5,6 +5,7 @@ import {checkCellsForAvailableForOpponent} from "./checkForCheck";
 export const checkMoveForKing=(startCell:Cell,endCell:Cell,board:Board,checks?:Checks)=>{
     const startCord=startCell.cord
     const endCord=endCell.cord
+
     if (startCord.x===endCord.x+1 && startCord.y===endCord.y ){
         return checkCellsForFigure(startCell,endCell,board)
     }

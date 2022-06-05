@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import classes from "./Timer.module.css";
 import {useAppDispatch, useAppSelector} from "../../store/store";
-import {setMateByTime, stopGame} from '../../store/reducers/boardReducer';
+import {setMateByTime, setTime, stopGame} from '../../store/reducers/boardReducer';
 import {FigureColorType} from "../../types/types";
 
 const Timer:React.FC<{type:FigureColorType}> = ({type}) => {
@@ -16,59 +16,44 @@ const Timer:React.FC<{type:FigureColorType}> = ({type}) => {
         }
        return `${minutes}:${restSeconds}`
     }
-
     const dispatch=useAppDispatch();
-    const initialTime=useAppSelector(state => state.board.initialTime)
-    const timeForLocalStorage:number | null=
-        localStorage.getItem(type===FigureColorType.WHITE ? "whiteTimer":"blackTimer") ?
-            JSON.parse(localStorage.getItem(type === FigureColorType.WHITE ? "whiteTimer" : "blackTimer") as string):null
-
-
-    const [currentTime,setCurrentTime]=useState(initialTime);
-    window.addEventListener("storage",()=>{
-        console.log('change');
-        console.log(localStorage.getItem(type===FigureColorType.WHITE ? "whiteTimer":"blackTimer"))
-        if (localStorage.getItem(type===FigureColorType.WHITE ? "whiteTimer":"blackTimer")===null){
-            setCurrentTime(initialTime);
-        }
-    })
-    if (currentTime===0){
+    const initialTime=useAppSelector(state => state.board.timer)[type]
+    const [currentTime,setCurrentTime]=useState(initialTime)
+    if (initialTime===0){
         dispatch(setMateByTime(type))
     }
-    const currentTimer=useAppSelector(state => state.board.currentTime)
+    const currentMove=useAppSelector(state => state.board.currentMove);
     const extraTime=useAppSelector(state => state.board.extraTime);
     useEffect(()=>{
-        if (currentTimer!==type && currentTimer) setCurrentTime(prevState =>prevState+extraTime);
-    },[currentTimer]);
+        if (currentMove!==type && currentMove)    dispatch(setTime([type,initialTime+extraTime]))
+    },[currentMove]);
     const mate=useAppSelector(state => state.board.mate);
     const [timeInterval,setTimeInterval]=useState<any>(null);
     useEffect(()=>{
-            if (type===currentTimer){
+            if (type===currentMove && currentMove){
                 setTimeInterval(setInterval(()=>{
                     setCurrentTime(prevState =>{
-                        localStorage.setItem(type===FigureColorType.WHITE ? "whiteTimer":"blackTimer",
-                            JSON.stringify(prevState-100))
+                        dispatch(setTime([type,prevState-100]))
                         return prevState-100
-                    });
-
+                    })
                 },100));
             }
-    },[currentTimer])
+    },[currentMove])
     if (mate){
         clearInterval(timeInterval)
     }
     useEffect(()=>{
-        if (type!==currentTimer) clearInterval(timeInterval)
-    },[currentTimer])
+        if (type!==currentMove) clearInterval(timeInterval)
+    },[currentMove])
     useEffect(()=>{
         return ()=>{
-            setCurrentTime(0);
+            dispatch(setTime([type,0]))
             dispatch(stopGame())
         }
     },[])
     return (
         <div className={classes.timer}>
-            <h1>{minutesToTime(currentTime)}</h1>
+            <h1>{minutesToTime(initialTime)}</h1>
         </div>
     );
 };

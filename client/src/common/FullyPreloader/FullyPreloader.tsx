@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from './../../images/logo.webp'
-import classes from "FullyPreloader.module.css";
+import classes from "./FullyPreloader.module.css";
 const FullyPreloader = () => {
     return (
         <div className={classes.preloader}>

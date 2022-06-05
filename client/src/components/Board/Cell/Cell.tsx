@@ -19,7 +19,7 @@ export const Cell:React.FC<{
     const ondragFigure=()=>{
         if (!mate){
             if (isCellAvailable) dispatch(dropFigure({cord:cord,figure:figure,color:color}))
-            if (figure?.color===currentMoving && availableColor===figure?.color){
+            if ((figure?.color===currentMoving || (!currentMoving && figure?.color===FigureColorType.WHITE))  && availableColor===figure?.color){
                 dispatch(setMovingCell({cord:cord,figure:figure,color}));
             }
         }

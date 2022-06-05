@@ -1,7 +1,7 @@
 .title{
     margin-bottom: 10px;
 }
-.clear{
+.button{
     background-color: #17baef;
     color: #fff;
     padding: 10px 30px;
@@ -11,13 +11,13 @@
     cursor: pointer;
     margin-right: 10px;
 }
-.clear:last-child{
+.button:last-child{
     margin-right: 0;
 }
-.clear:hover:not(.disabled){
+.button:hover:not(.disabled){
     filter:brightness(80%);
 }
-.clear:active:not(.disabled){
+.button:active:not(.disabled){
     transform: translateY(-10px);
 }
 .buttons{
@@ -34,7 +34,6 @@ align-self: center;
     opacity: 0.7;
     cursor: auto;
 }
-
 @media (max-width: 545px) or (max-height: 545px) {
     .clear{
         padding: 5px 15px;

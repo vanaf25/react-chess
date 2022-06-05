@@ -1,0 +1,28 @@
+.chat{
+    align-self: center;
+    border: 1px solid #000;
+    width: 300px;
+}
+.chat__form{
+    position: relative;
+    z-index: 2;
+    padding:  10px;
+    background-color: #ece6e6;
+    border-top:1px solid #000;
+}
+.chat__messages{
+    padding: 10px;
+    height: 400px;
+    overflow: auto;
+}
+.chat__message{
+    display: flex;
+    margin-bottom: 10px;
+}
+.chat__message__user{
+    margin-right: 10px;
+    margin-bottom: 0;
+}
+.chat__message__message{
+    align-self: center;
+}

@@ -32,9 +32,12 @@
         --coefficient: 30px;
     }
 }
+.board__container{
+    margin:0 auto;
+}
 .board{
     width: calc(var(--coefficient) * 8);
-    margin: 20px;
+    margin: 10px;
     display: grid;
     grid-template-columns: repeat(8,1fr);
     position: relative;
@@ -96,4 +99,22 @@ border: 2px solid red;
 }
 ._active{
     background-color: #8fc647;
+}
+.user__data{
+    display: flex;
+    margin-left: 30px;
+}
+.user__data h2{
+    margin-bottom: 0;
+}
+.user__status{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #000;
+    background-color: #50db50;
+    margin-right: 10px;
+}
+.user__status_offline{
+  background-color: transparent;
 }
