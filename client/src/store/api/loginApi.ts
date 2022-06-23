@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {UserTypeWithTokens} from "../../types/authTypes";
 import {logOut, setError, setUserData } from '../reducers/authReducer';
-import {Simulate} from "react-dom/test-utils";
 const BASE_URL="http://localhost:5000/api"
 export const loginApi=createApi({
     reducerPath: "loginApi",

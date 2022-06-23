@@ -63,6 +63,7 @@ async refresh(refreshToken){
         throw ApiErrors.UnauthorizedError()
     }
     const userData=tokenService.validateRefreshToken(refreshToken)
+    console.log('user',userData);
     const tokenFromDb=await tokenService.findRefreshToken(refreshToken)
     if (!userData || !tokenFromDb){
         throw ApiErrors.UnauthorizedError()

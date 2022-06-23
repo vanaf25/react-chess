@@ -15,10 +15,8 @@ import {checkIsMoveCorrect} from "../../rules/globalRules";
 import isCheck, {isMate} from "../../rules/checkForCheck";
 import {checkForDraw} from "../../rules/checkForDraw";
 import {ACTIONS, socket} from "../../components/Main/Main";
-import {GAME_IS_CREATE, Message, OPPONENT} from "../../types/socketTypes";
-import {isArray} from "util";
+import {GAME_IS_CREATE, Message} from "../../types/socketTypes";
 import {UserType} from "../../types/authTypes";
-
 type Type={
     type?:string,
     action?:string,

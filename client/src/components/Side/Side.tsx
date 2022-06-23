@@ -10,11 +10,10 @@ import {setEndOfTheGame} from '../../store/reducers/boardReducer';
 import classnames from 'classnames';
 
 const Side = () => {
-    const currentVersionOfBoard=useAppSelector(state => state.board.currentVersionOfBoard);
-    console.log(currentVersionOfBoard);
     const mate=useAppSelector(state => state.board.mate)
     const dispatch=useAppDispatch();
     const opponent=useAppSelector(state => state.board.opponent)
+    const opponentSocketId=useAppSelector(state => state.board.opponentSocketId);
     const [isDrawOffering,setIsDrawOffering]=useState(false)
     const [isDrawOfferingSent,setIsDrawOfferingSent]=useState(false)
     const offerADraw=()=>{
@@ -47,7 +46,8 @@ const Side = () => {
         dispatch(setEndOfTheGame("draw"));
     }
     const giveUp=()=>{
-        socket.emit(ACTIONS.SET_GIVE_UP,opponent.socketId);
+        console.log(opponentSocketId)
+        socket.emit(ACTIONS.GIVE_UP,opponentSocketId);
         dispatch(setEndOfTheGame(availableColor===FigureColorType.WHITE ? "white was give up":'black was give up'));
     }
     const colors=[]

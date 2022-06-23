@@ -2,38 +2,21 @@ import {Server} from "socket.io";
 import express from 'express'
 import cors from 'cors'
 import {v1, v4} from 'uuid'
+import ACTIONS from "./actions.js";
+import authMiddleware from './middlewares/auth-middleware.js'
 const io=new Server({
         origin: "*",
+    cookie:true,
         methods: ["GET", "POST"]
 })
 const app=express()
 app.use(cors());
-const ACTIONS={
-    START_SEARCHING:"START_SEARCHING",
-    GET_AVAILABLE_USERS:"GET_AVAILABLE_USERS",
-    CREATE_GAME_WITH_USER:"CREATE_GAME_WITH_USER",
-    GAME_IS_CREATE:"GAME_IS_CREATE",
-    ME:"ME",
-    SET_MOVING:"SET_MOVING",
-    CHANGE_BOARD:"CHANGE_BOARD",
-    STOP_SEARCHING: "STOP_SEARCHING",
-    SET_OFFER_FOR_DRAW:"SET_OFFER_FOR_DRAW",
-    OFFER_FOR_DRAW:"OFFER_FOR_DRAW",
-    REJECT_OFFER_FOR_DRAW:"REJECT_OFFER_FOR_DRAW",
-    SET_REJECT_OFFER_FOR_DRAW:"SET_REJECT_OFFER_FOR_DRAW",
-    SET_ACCEPT_OFFER_FOR_DRAW:"SET_ACCEPT_OFFER_FOR_DRAW",
-    ACCEPT_OFFER_FOR_DRAW:"ACCEPT_OFFER_FOR_DRAW",
-    SET_GIVE_UP:"SET_GIVE_UP",
-    GIVE_UP:"GIVE_UP",
-    OPPONENT_DISCONNECT:"OPPONENT_DISCONNECT",
-    RECONNECT_FOR_GAME: "RECONNECT_FOR_GAME",
-    SEND_MESSAGE:"SEND_MESSAGE"
-}
 const PORT=process.env.WS_PORT || 8080
 let availableUsers=[];
-const games=[
+let games=[
 
 ]
+io.use(authMiddleware)
 io.on("connection",(socket)=>{
     const createGameWithUser=({mySocketId,user,opponent,gameOptions,opponentSocketId})=>{
         const isOpponent=availableUsers.find(user=>user.socketId===opponentSocketId)
@@ -63,6 +46,7 @@ io.on("connection",(socket)=>{
         io.emit(ACTIONS.GET_AVAILABLE_USERS,availableUsers)
     })
     socket.on(ACTIONS.START_SEARCHING,(data)=>{
+
         let isUserFind;
         availableUsers=availableUsers.filter(availableUser=>availableUser.user.name!==data.user.name)
         availableUsers.forEach(user=>{
@@ -97,7 +81,7 @@ io.on("connection",(socket)=>{
     socket.on(ACTIONS.SET_ACCEPT_OFFER_FOR_DRAW,(socketId)=>{
         io.to(socketId).emit(ACTIONS.ACCEPT_OFFER_FOR_DRAW)
     })
-    socket.on(ACTIONS.SET_GIVE_UP,(socketId)=>{
+    socket.on(ACTIONS.GIVE_UP,(socketId)=>{
         io.to(socketId).emit(ACTIONS.GIVE_UP)
     })
     io.emit(ACTIONS.GET_AVAILABLE_USERS,availableUsers)
@@ -107,6 +91,10 @@ io.on("connection",(socket)=>{
             game.users.forEach(user=>{
                 if (user.socketId===socket.id){
                     const opponent=game.users.find(user=>user.socketId!==socket.id)
+                    game.users=game.users.filter(user=>user.socketId!==socket.id)
+                    if (game.board.mate){
+                        games=games.filter(deletedGame=>deletedGame.id!==game.id)
+                    }
                     if (opponent){
                         io.to(opponent.socketId).emit(ACTIONS.OPPONENT_DISCONNECT)
                     }

@@ -10,7 +10,6 @@ const initialState={
     initialState,
     reducers:{
         setUserData:(state,action:PayloadAction<UserTypeWithTokens>)=>{
-            console.log(action.payload)
             localStorage.setItem("accessToken",action.payload.accessToken)
             state.isAuth=true
             state.user=action.payload.user

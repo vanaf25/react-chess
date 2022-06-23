@@ -4,8 +4,7 @@ import {useAppDispatch, useAppSelector} from "../../store/store";
 import { startGame } from '../../store/reducers/boardReducer';
 import { useNavigate } from 'react-router-dom';
 import {io} from "socket.io-client";
-import {FigureColorType} from "../../types/types";
-import {AVAILABLE_USER, GAME_IS_CREATE, GAME_OPTIONS, OPPONENT} from "../../types/socketTypes";
+import {AVAILABLE_USER, GAME_IS_CREATE} from "../../types/socketTypes";
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
@@ -16,7 +15,10 @@ const options={
     reconnectionAttemptsInfinity:"INFINITY",
     timeout:10000,
     transports:["websocket"],
-    autoConnect:false
+    autoConnect:false,
+    auth:{
+        authorization:`Bearer ${localStorage.getItem('accessToken')}`,
+    }
 }
 export const socket = io("http://localhost:8080",options);
 function TabPanel(props: TabPanelProps) {
@@ -139,7 +141,6 @@ const Main = () => {
     const user=useAppSelector(state => state.auth.user)
     const [availableUsers,setAvailableUsers]=useState<Array<AVAILABLE_USER>>([]);
     const [isSearchingForGame,setIsSearchingForGame]=useState<null | number>(null)
-    const [isGameDuring,setIsGameDuring]=useState(false);
     const setTypeOfGame=(data:GAME_IS_CREATE)=>{
         dispatch(startGame(data))
         navigator(`game`);
@@ -207,9 +208,12 @@ const Main = () => {
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-                <Box sx={{display:"flex",flexWrap:"wrap",maxWidth:610,margin:"0 auto",justifyContent:"center"}}>
+                <Box sx={{display:"flex",
+                    flexWrap:"wrap",
+                    maxWidth:610,margin:"0 auto",justifyContent:"center"}}>
                     {typeOfGames.map((typeOfGame,index)=><CardContent
-                                                              onClick={()=>addAvailableUser(typeOfGame.time,typeOfGame.extraSeconds,typeOfGame.type,index)}
+                                                              onClick={
+                                                                  ()=>addAvailableUser(typeOfGame.time,typeOfGame.extraSeconds,typeOfGame.type,index)}
                                                               sx={{
                                                                   opacity:isSearchingForGame!==null ? index!==isSearchingForGame ? 0.2:1:1,
                                                                   bgcolor: 'text.secondary',
